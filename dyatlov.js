@@ -196,8 +196,8 @@ Dyatlov.prototype = {
       downtime: function () {
         // KiwiSDR.com updates receivers every
         // 30 minutes, consider temporarily down
-        // after 120 minutes
-        return this.age > 7200000;
+        // after 360 minutes
+        return this.age > 21600000;
       },
       // Check if receiver is offline, down or unavailable
       offline: function () {
