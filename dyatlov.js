@@ -187,17 +187,17 @@ Dyatlov.prototype = {
         //return (this.raw.sdr_hw && this.raw.sdr_hw.indexOf(' GPS ') > -1);
       },
       // Check if live recently and still relevant
-      // (less than 10 days of downtime)
+      // (less than 1 year of downtime)
       recent: function () {
-        return this.age < 864000000;
+        return this.age < 31556952000;
       },
       // Check if receiver is currently down,
       // after missing latest status probes
       downtime: function () {
         // KiwiSDR.com updates receivers every
         // 30 minutes, consider temporarily down
-        // after 360 minutes
-        return this.age > 21600000;
+        // after 1 year
+        return this.age > 31556952000;
       },
       // Check if receiver is offline, down or unavailable
       offline: function () {
@@ -626,6 +626,7 @@ Dyatlov.prototype = {
         // Each data source is optional and may or may not
         // have been loaded
         typeof static_rx == "object" && static_rx ? static_rx : [],
+        typeof new_888_data == "object" && new_888_data ? new_888_data : [],
         typeof kiwisdr_com == "object" && kiwisdr_com ? kiwisdr_com : [],
       )
       .map(function (rx) {

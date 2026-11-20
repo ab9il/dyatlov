@@ -1,0 +1,52 @@
+#! /bin/bash
+# KiwiSDR.com receiver list extractor for dyatlov map maker
+# Copyright 2017 Pierre Ynard
+# Licensed under GPLv3+
+#
+# This script fetches the KiwiSDR.com receiver list, parses it, and
+# updates a javascript file with the extracted data, to be sourced by
+# the dyatlov map maker. It can run interactively, or in an automated
+# way.
+#
+# The target directory for the javascript data files can be passed
+# as an optional first argument to the script; by default, the
+# script directory will be used. If setting up automated updates, it
+# is strongly recommended for security reasons to use a separate,
+# unprivileged target directory.
+
+# Input and output configuration
+SOURCE_URL='http://rx.linkfanel.net/kiwisdr_com.js'
+
+JS_FILENAME='kiwisdr_com.js'
+extra_js=(new-888-data.js static_rx.js)
+
+# Target data files
+prev_js="${JS_FILENAME}"
+new_js="${JS_FILENAME}.tmp"
+
+# Check dependencies, probe available features and switch color output
+if ! which wget >/dev/null 2>&1; then
+    echo 'Cannot find `wget`, aborting. This script requires `wget`, please install it.' >&2
+    exit 1
+fi
+
+# Cleaning this up may be more robust
+rm -f "$new_js"
+
+wget \
+    -nv \
+    -e robots=off \
+    --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:150.0) Gecko/20100101 Firefox/150.0" \
+    -O "$new_js" -- "$SOURCE_URL"
+
+# Update data and include the extra servers
+head -n -2 "$new_js" | sed '/^\]/d' | sed '/^;/d' | sed 's/ ":" / : /g' >"$prev_js"
+
+# for ITEM in ${extra_js[@]}; do
+#     \cat $ITEM | sed '/^\//d' | sed '/^\[/d'| sed '/^\]/d' | sed '/^;/d' | sed '/^$/d' | sed '/^var/d' | sed 's/ ":" / : /g' >>"$prev_js"
+# done
+
+echo -e "]\n;" >>"$prev_js"
+
+
+[ -f "$new_js" ] && rm "$new_js"
